@@ -33,6 +33,7 @@ int main(int ac, char **av) {
         map.move_tetrimino(&map); //move tetrimino left- right
         map.rotation_tetrimino(&map);
         map.automove_down(&map); //down to tetrimino
+        map.cleanLine(&map);
 
         SDL_RenderPresent(screen.m_render);
         SDL_Delay(150);

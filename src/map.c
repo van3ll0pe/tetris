@@ -34,6 +34,7 @@ Map map_init() {
     map.move_tetrimino = &map_move_tetrimino;
     map.automove_down = &map_automove_down;
     map.rotation_tetrimino = &map_rotation_tetrimino;
+    map.cleanLine = &map_cleanLine;
 
     return map;
 }
@@ -258,8 +259,11 @@ void map_rotation_tetrimino(Map *map) {
 
 
     int transfertValue = 0; //the tmp variable to transfert
-    int borderLeftRotation = 0;
-    int borderRightRotation = 0;
+    int borderLeftRotation = 0; //le décalage vers la gauche qui affirme qu'il n'y a pas de block dans la(les) rangée(s)
+    int borderRightRotation = 0; //le décalage vers la droite qui affirme qu'il n'y a pas de block dans la(les) rangée(s)
+    int borderDownRotation = 0; //le décalage vers le bas qui affirme s'il peut tourner alors qu'il est vers le bas
+
+    int valideRotation = 1; //la variable qui regarde dans chaque nouvelle rotation du tetrimino si il y a déjà un block. S'il y a déjà alors la variable est à 0 est la rotation ne se fait pas | à 1, la rotation se fait
 
 
     if (keyboard[SDL_SCANCODE_Q]) {
@@ -389,17 +393,31 @@ void map_rotation_tetrimino(Map *map) {
         }
     }
 
+    //bordureDown
+    for (int y = 0; y < map->tetrimino.m_sizeSquare - 2; y++) {
+        int valideBorder = 0;
+        for (int x = 0; x < map->tetrimino.m_sizeSquare; x++) {
+            if (map->tetrimino.m_pieceRotation[y][x] == 0) {
+                valideBorder++;
+            }
+        }
+
+        if (valideBorder == map->tetrimino.m_sizeSquare) {
+            borderDownRotation++;
+        }
+    }
+
     //check collision with opthers tetrimino
     for (int y = 0; y < map->tetrimino.m_sizeSquare; y++) {
         for (int x = 0; x < map->tetrimino.m_sizeSquare; x++) {
+            if ((map->tetrimino.m_pieceRotation[y][x] > 0) && (map->tetrimino.m_position_x + x <= MAP_WIDTH) &&(map->m_mapVerification[map->tetrimino.m_position_y + y][map->tetrimino.m_position_x + x] > 0)) {
+                valideRotation = 0;
+            }
             //check to map with the rotation piece to see if there are collision
         }
     }
 
-    if () {
-
-    }
-    if (((map->tetrimino.m_position_x + borderLeftRotation) >= 0) && ((map->tetrimino.m_position_x + (map->tetrimino.m_sizeSquare - borderRightRotation)) <= MAP_WIDTH)) {
+    if (((map->tetrimino.m_position_x + borderLeftRotation) >= 0) && ((map->tetrimino.m_position_x + (map->tetrimino.m_sizeSquare - borderRightRotation)) <= MAP_WIDTH) && (map->tetrimino.m_position_y + map->tetrimino.m_sizeSquare - borderDownRotation <= MAP_HEIGHT) && (valideRotation == 1)) {
         map_piece_toRotationPiece(map);
     }else {
         map_rotationPiece_toPiece(map);
@@ -431,4 +449,25 @@ void map_rotationPiece_toPiece(Map *map) {
            map->tetrimino.m_pieceRotation[y][x] = map->tetrimino.m_piece[y][x];
        }
    }
+}
+
+void map_cleanLine(Map *map) {
+
+    int lineStatus = 0; //the number ok on the line
+
+    for (int y = 0; y < MAP_HEIGHT; y++) {
+        lineStatus = 0;
+        for (int x = 0; x < MAP_WIDTH; x++) {
+            if (map->m_mapVerification[y][x] > 0) {
+                lineStatus++;
+            }
+        }
+        if (lineStatus == MAP_WIDTH) { //si la ligne est pleine
+            for (int i = y; i > 0; i--) {
+                for (int l = 0; l < MAP_WIDTH; l++) {
+                    map->m_mapVerification[i][l] = map->m_mapVerification[i - 1][l];
+                }
+            }
+        }
+    }
 }

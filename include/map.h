@@ -22,6 +22,7 @@ void map_display_tetrimino(Screen *screen, Map *map); //function to display the 
 void map_move_tetrimino(Map *map); //function to move on right or left
 void map_rotation_tetrimino(Map *map); //function to rotate tretrimino
 void map_automove_down(Map *map); //function to move automaticly down
+void map_cleanLine(Map *map); //function to clean line if the line is full
 
 
 void map_piece_toRotationPiece(Map *map); //function to set the piece into rotation piece
@@ -47,6 +48,7 @@ struct Map {
     void (*move_tetrimino)(Map *map); //pointer of function map_move_tetrimino
     void (*automove_down)(Map *map); //pointer of function map_automove_down
     void (*rotation_tetrimino)(Map *map); //pointer of function map_rotation_tetrimino
+    void (*cleanLine)(Map *map);
 };
 
 
