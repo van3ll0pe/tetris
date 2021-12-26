@@ -5,8 +5,9 @@ Map map_init() {
     Map map;
 
     map.m_points = 0;
-    map.m_speed = 200;
-    map.m_stateTetrimino = 0;
+    map.m_speed = 900;
+    map.m_nbrLineBreak = 0;
+
 
     //malloc the tabVerification & map REct
     map.m_mapVerification = (int **)malloc(sizeof(int *) * MAP_HEIGHT);
@@ -131,8 +132,7 @@ void map_display_tetrimino(Screen *screen, Map *map) {
 }
 
 
-void map_move_tetrimino(Map *map) {
-    const Uint8 *keyboard = SDL_GetKeyboardState(NULL); //the state of keyboard
+void map_move_tetrimino(Map *map, int sideMove) {
     int borderLeft[map->tetrimino.m_sizeSquare]; //la délimitation de la piece à gauche
     int borderRight[map->tetrimino.m_sizeSquare]; //la délimitation de la pièce à droite
     int valideNextPosition = 0; 
@@ -158,15 +158,11 @@ void map_move_tetrimino(Map *map) {
             x++;
         }
     }
-    
-    for (int i = 0; i < map->tetrimino.m_sizeSquare; i++) {
-        printf("%d : bordure gauche %d - bordure droite %d\n", i, borderLeft[i], borderRight[i]);
-    }
 
 
     //déplacement en fonction de la bordure
 
-    if (keyboard[SDL_SCANCODE_LEFT]) {
+    if (sideMove == 1) { //gauche
         for (int y = map->tetrimino.m_position_y, i = 0; y < map->tetrimino.m_position_y + map->tetrimino.m_sizeSquare; y++, i++) {
             if (borderLeft[i] == map->tetrimino.m_sizeSquare) {
                 valideNextPosition++;
@@ -179,12 +175,8 @@ void map_move_tetrimino(Map *map) {
         if (valideNextPosition == map->tetrimino.m_sizeSquare) {
             map->tetrimino.m_position_x--;
         }
-        /*
-        if ((map->tetrimino.m_position_x + borderLeft) > 0) {
-                map->tetrimino.m_position_x--;
-        }*/
 
-    } else if (keyboard[SDL_SCANCODE_RIGHT]) {
+    } else if (sideMove == 2) { //droite
         
         for (int y = map->tetrimino.m_position_y, i = 0; y < map->tetrimino.m_position_y + map->tetrimino.m_sizeSquare; y++, i++) {
             if (borderRight[i] == map->tetrimino.m_sizeSquare) {
@@ -198,10 +190,6 @@ void map_move_tetrimino(Map *map) {
         if (valideNextPosition == map->tetrimino.m_sizeSquare) {
             map->tetrimino.m_position_x++;
         }
-        /*
-        if ((map->tetrimino.m_position_x + (map->tetrimino.m_sizeSquare - borderRight)) < MAP_WIDTH) {
-            map->tetrimino.m_position_x++;
-        }*/
     }
 
        
@@ -253,11 +241,7 @@ void map_automove_down(Map *map) {
 
 }
 
-void map_rotation_tetrimino(Map *map) {
-    const Uint8 *keyboard = SDL_GetKeyboardState(NULL);
-
-
-
+void map_rotation_tetrimino(Map *map, int sideRotation) {
     int transfertValue = 0; //the tmp variable to transfert
     int borderLeftRotation = 0; //le décalage vers la gauche qui affirme qu'il n'y a pas de block dans la(les) rangée(s)
     int borderRightRotation = 0; //le décalage vers la droite qui affirme qu'il n'y a pas de block dans la(les) rangée(s)
@@ -266,7 +250,7 @@ void map_rotation_tetrimino(Map *map) {
     int valideRotation = 1; //la variable qui regarde dans chaque nouvelle rotation du tetrimino si il y a déjà un block. S'il y a déjà alors la variable est à 0 est la rotation ne se fait pas | à 1, la rotation se fait
 
 
-    if (keyboard[SDL_SCANCODE_Q]) {
+    if (sideRotation == 1) {
         if (map->m_nbrValueTetrimino == 0) { //si le tetrimino est un I
             //corner block
             transfertValue = map->tetrimino.m_pieceRotation[3][0];
@@ -316,37 +300,37 @@ void map_rotation_tetrimino(Map *map) {
 
         
         
-    } else if (keyboard[SDL_SCANCODE_D]) {
+    } else if (sideRotation == 2) {
 
         if (map->m_nbrValueTetrimino == 0) { //si le tetrimino est un I
             //corner block
-            transfertValue = map->tetrimino.m_pieceRotation[3][0];
-            map->tetrimino.m_pieceRotation[3][0] = map->tetrimino.m_pieceRotation[0][0];
-            map->tetrimino.m_pieceRotation[0][0] = map->tetrimino.m_pieceRotation[0][3];
-            map->tetrimino.m_pieceRotation[0][3] = map->tetrimino.m_pieceRotation[3][3];
+            transfertValue = map->tetrimino.m_pieceRotation[0][3];
+            map->tetrimino.m_pieceRotation[0][3] = map->tetrimino.m_pieceRotation[0][0];
+            map->tetrimino.m_pieceRotation[0][0] = map->tetrimino.m_pieceRotation[3][0];
+            map->tetrimino.m_pieceRotation[3][0] = map->tetrimino.m_pieceRotation[3][3];
             map->tetrimino.m_pieceRotation[3][3] = transfertValue;
 
             //part 1 side block
-            transfertValue = map->tetrimino.m_pieceRotation[3][2];
-            map->tetrimino.m_pieceRotation[3][2] = map->tetrimino.m_pieceRotation[2][0];
-            map->tetrimino.m_pieceRotation[2][0] = map->tetrimino.m_pieceRotation[0][1];
-            map->tetrimino.m_pieceRotation[0][1] = map->tetrimino.m_pieceRotation[1][3];
+            transfertValue = map->tetrimino.m_pieceRotation[0][1];
+            map->tetrimino.m_pieceRotation[0][1] = map->tetrimino.m_pieceRotation[2][0];
+            map->tetrimino.m_pieceRotation[2][0] = map->tetrimino.m_pieceRotation[3][2];
+            map->tetrimino.m_pieceRotation[3][2] = map->tetrimino.m_pieceRotation[1][3];
             map->tetrimino.m_pieceRotation[1][3] = transfertValue;
 
             //part 2 side block
-            transfertValue = map->tetrimino.m_pieceRotation[3][1];
-            map->tetrimino.m_pieceRotation[3][1] = map->tetrimino.m_pieceRotation[1][0];
-            map->tetrimino.m_pieceRotation[1][0] = map->tetrimino.m_pieceRotation[0][2];
-            map->tetrimino.m_pieceRotation[0][2] = map->tetrimino.m_pieceRotation[2][3];
+            transfertValue = map->tetrimino.m_pieceRotation[0][2];
+            map->tetrimino.m_pieceRotation[0][2] = map->tetrimino.m_pieceRotation[1][0];
+            map->tetrimino.m_pieceRotation[1][0] = map->tetrimino.m_pieceRotation[3][1];
+            map->tetrimino.m_pieceRotation[3][1] = map->tetrimino.m_pieceRotation[2][3];
             map->tetrimino.m_pieceRotation[2][3] = transfertValue;
 
             //center block
 
-            transfertValue = map->tetrimino.m_pieceRotation[2][2];
-            map->tetrimino.m_pieceRotation[2][2] = map->tetrimino.m_pieceRotation[2][1];
-            map->tetrimino.m_pieceRotation[2][1] = map->tetrimino.m_pieceRotation[1][1];
-            map->tetrimino.m_pieceRotation[1][1] = map->tetrimino.m_pieceRotation[0][2];
-            map->tetrimino.m_pieceRotation[1][2] = transfertValue;
+            transfertValue = map->tetrimino.m_pieceRotation[1][2];
+            map->tetrimino.m_pieceRotation[1][2] = map->tetrimino.m_pieceRotation[1][1];
+            map->tetrimino.m_pieceRotation[1][1] = map->tetrimino.m_pieceRotation[2][1];
+            map->tetrimino.m_pieceRotation[2][1] = map->tetrimino.m_pieceRotation[2][2];
+            map->tetrimino.m_pieceRotation[2][2] = transfertValue;
 
         } else if (map->m_nbrValueTetrimino >= 2 && map->m_nbrValueTetrimino <= 6) { //si il n'est pas un I ou un O
             //corner block of tetrimino
@@ -407,7 +391,7 @@ void map_rotation_tetrimino(Map *map) {
         }
     }
 
-    //check collision with opthers tetrimino
+    //check collision with others tetrimino
     for (int y = 0; y < map->tetrimino.m_sizeSquare; y++) {
         for (int x = 0; x < map->tetrimino.m_sizeSquare; x++) {
             if ((map->tetrimino.m_pieceRotation[y][x] > 0) && (map->tetrimino.m_position_x + x <= MAP_WIDTH) &&(map->m_mapVerification[map->tetrimino.m_position_y + y][map->tetrimino.m_position_x + x] > 0)) {
@@ -417,7 +401,7 @@ void map_rotation_tetrimino(Map *map) {
         }
     }
 
-    if (((map->tetrimino.m_position_x + borderLeftRotation) >= 0) && ((map->tetrimino.m_position_x + (map->tetrimino.m_sizeSquare - borderRightRotation)) <= MAP_WIDTH) && (map->tetrimino.m_position_y + map->tetrimino.m_sizeSquare - borderDownRotation <= MAP_HEIGHT) && (valideRotation == 1)) {
+    if (((map->tetrimino.m_position_x + borderLeftRotation) >= 0) && ((map->tetrimino.m_position_x + (map->tetrimino.m_sizeSquare - borderRightRotation)) <= MAP_WIDTH) && (map->tetrimino.m_position_y + map->tetrimino.m_sizeSquare - borderDownRotation < MAP_HEIGHT) && (valideRotation == 1)) {
         map_piece_toRotationPiece(map);
     }else {
         map_rotationPiece_toPiece(map);
@@ -463,6 +447,7 @@ void map_cleanLine(Map *map) {
             }
         }
         if (lineStatus == MAP_WIDTH) { //si la ligne est pleine
+            map->m_nbrLineBreak++;
             for (int i = y; i > 0; i--) {
                 for (int l = 0; l < MAP_WIDTH; l++) {
                     map->m_mapVerification[i][l] = map->m_mapVerification[i - 1][l];
