@@ -22,6 +22,17 @@ void key_pressed_callFunction(Map *map) {
     }
     else if (keyboard[SDL_SCANCODE_RIGHT]) { //deplacement vers la droite
         map->move_tetrimino(map, 2);
+    } else if (keyboard[SDL_SCANCODE_DOWN]) {
+        map->m_speed = 0;
+    } else if (keyboard[SDL_SCANCODE_DOWN] == 0) {
+        map->m_speed = 900;
+    }
+}
+
+void check_looseGame(Screen *screen, Map *map) {
+    if (map->m_loose == 1) {
+        printf("loose\n");
+        screen->m_isRunning = 0;
     }
 }
 
@@ -53,15 +64,18 @@ int main(int ac, char **av) {
         timer = SDL_GetTicks();
         if (timer > timePassed + map.m_speed) {
             map.automove_down(&map); //down to tetrimino
+            map.increaseSpeed(&map);
             timePassed = timer;
         }
 
         map.cleanLine(&map);     //check to clear line
-
+        
         SDL_RenderPresent(screen.m_render);
         SDL_Delay(150);
+        check_looseGame(&screen, &map); //à revoir /!
     }
 
+    printf("lines : %d\n", map.m_nbrLineBreak);
     screen.destroy(&screen);
     SDL_Quit();
 

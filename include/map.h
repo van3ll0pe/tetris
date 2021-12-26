@@ -23,6 +23,7 @@ void map_move_tetrimino(Map *map, int sideMove); //function to move on right or 
 void map_rotation_tetrimino(Map *map, int sideRotation); //function to rotate tretrimino
 void map_automove_down(Map *map); //function to move automaticly down
 void map_cleanLine(Map *map); //function to clean line if the line is full
+void map_increaseSpeed(Map *map); //function to increase speed while the lines breaked
 
 
 void map_piece_toRotationPiece(Map *map); //function to set the piece into rotation piece
@@ -36,9 +37,8 @@ struct Map {
     int **m_mapVerification; //the tab of tab check each line
 
     Tetrimino tetrimino; //the actual piece to put on the map (it is changed by m_nbrValueTetrimino)
-
+    int m_loose; //if 0 the player doesn't loose the game, if 1 the game stop
     int m_nbrLineBreak; //the number of lines destroyed
-    int m_points;       //the points given to destroy line
     int m_speed;        //the speed of tetriminos in while points
     int m_nbrValueTetrimino;    //the random value to set piece tetrimino
     int m_nbrValueTetriminoNext; //the next random value tetrimino
@@ -48,7 +48,8 @@ struct Map {
     void (*move_tetrimino)(Map *map, int sideMove); //pointer of function map_move_tetrimino
     void (*automove_down)(Map *map); //pointer of function map_automove_down
     void (*rotation_tetrimino)(Map *map, int sideRotation); //pointer of function map_rotation_tetrimino
-    void (*cleanLine)(Map *map);
+    void (*cleanLine)(Map *map); //pointer of function map_cleanLine
+    void (*increaseSpeed)(Map *map); //pointer of function map_increaseSpeed
 };
 
 

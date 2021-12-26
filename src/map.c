@@ -4,7 +4,7 @@ Map map_init() {
 
     Map map;
 
-    map.m_points = 0;
+    map.m_loose = 0;
     map.m_speed = 900;
     map.m_nbrLineBreak = 0;
 
@@ -36,6 +36,7 @@ Map map_init() {
     map.automove_down = &map_automove_down;
     map.rotation_tetrimino = &map_rotation_tetrimino;
     map.cleanLine = &map_cleanLine;
+    map.increaseSpeed = &map_increaseSpeed;
 
     return map;
 }
@@ -234,6 +235,14 @@ void map_automove_down(Map *map) {
         srand(time(NULL));
         map->m_nbrValueTetrimino = rand() % 7;
         map->tetrimino = tetrimino_init(map->m_nbrValueTetrimino);
+        //check si la piece apparait sur une nouvelle piece
+        for (int y = 0; y < map->tetrimino.m_sizeSquare; y++) {
+            for (int x = 0; x < map->tetrimino.m_sizeSquare; x++) {
+                if ((map->tetrimino.m_piece[y][x] > 0) && (map->m_mapVerification[map->tetrimino.m_position_y + y][map->tetrimino.m_position_x + x] > 0)) {
+                    map->m_loose = 1;
+                }
+            }
+        }
     }
 
 
@@ -453,6 +462,25 @@ void map_cleanLine(Map *map) {
                     map->m_mapVerification[i][l] = map->m_mapVerification[i - 1][l];
                 }
             }
+            for (int x = 0; x < MAP_WIDTH; x++) {
+                map->m_mapVerification[0][x] = 0;
+            }
         }
+    }
+}
+
+void map_increaseSpeed(Map *map) {
+    if (map->m_nbrLineBreak >= 100 && map->m_nbrLineBreak < 200) {
+        map->m_speed = 800;
+    } else if (map->m_nbrLineBreak >= 200 && map->m_nbrLineBreak < 300) {
+        map->m_speed = 700;
+    } else if (map->m_nbrLineBreak >= 300 && map->m_nbrLineBreak < 400) {
+        map->m_speed = 600;
+    } else if (map->m_nbrLineBreak >= 400 && map->m_nbrLineBreak < 500) {
+        map->m_speed = 500;
+    } else if (map->m_nbrLineBreak >= 500 && map->m_nbrLineBreak < 600) {
+        map->m_speed = 400;
+    } else if (map->m_nbrLineBreak >= 600) {
+        map->m_speed = 300;
     }
 }

@@ -190,9 +190,7 @@ Tetrimino tetrimino_init(int nbrValue) {
             break;
     
     default: break;
-    }
-
-    
+    }  
 
     return tetrimino;
 }
