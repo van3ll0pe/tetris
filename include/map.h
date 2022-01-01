@@ -5,18 +5,20 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <time.h>
 
 #include "macros.h"
 #include "screen.h"
 #include "tetrimino.h"
+#include "scoringzone.h"
 
 typedef struct Map Map;
 
 
 //------PROTOTYPES------------------
 
-Map map_init();         //function to init map
+Map map_init(Screen *screen);         //function to init map
 void map_display_map(Screen *screen, Map *map); //function to display the map
 void map_display_tetrimino(Screen *screen, Map *map); //function to display the tetrimino
 void map_move_tetrimino(Map *map, int sideMove); //function to move on right or left
@@ -37,11 +39,18 @@ struct Map {
     int **m_mapVerification; //the tab of tab check each line
 
     Tetrimino tetrimino; //the actual piece to put on the map (it is changed by m_nbrValueTetrimino)
+    Tetrimino tetriminoNext; //the next piece to put on the map (it is changed by m_nbrValueTetrimino)
+    ScoringZone scoringZone; //the scoring zone of the map
+    
     int m_loose; //if 0 the player doesn't loose the game, if 1 the game stop
     int m_nbrLineBreak; //the number of lines destroyed
     int m_speed;        //the speed of tetriminos in while points
     int m_nbrValueTetrimino;    //the random value to set piece tetrimino
     int m_nbrValueTetriminoNext; //the next random value tetrimino
+
+
+
+
 
     void (*display_map)(Screen *screen, Map *map); //pointer of function map_display_map
     void (*display_tetrimino)(Screen *screen, Map *map); //pointer of function map_display_tetrimino

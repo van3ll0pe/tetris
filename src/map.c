@@ -1,6 +1,6 @@
 #include "../include/map.h"
 
-Map map_init() {
+Map map_init(Screen *screen) {
 
     Map map;
 
@@ -25,10 +25,13 @@ Map map_init() {
     //give the piece tetrimino
     srand( time(NULL));
     map.m_nbrValueTetrimino = rand() % 7;
+    srand( time(NULL) );
+    map.m_nbrValueTetriminoNext = rand() % 7;
     
-
     //create the piece tetrimino
     map.tetrimino = tetrimino_init(map.m_nbrValueTetrimino);
+    map.tetriminoNext = tetrimino_init(map.m_nbrValueTetriminoNext);
+    map.scoringZone = scoringZone_init(screen);
 
     map.display_map = &map_display_map;
     map.display_tetrimino = &map_display_tetrimino;
@@ -45,6 +48,7 @@ Map map_init() {
 void map_display_map(Screen *screen, Map *map) {
     
     SDL_Rect block; //each block of the map to display
+
     block.h = BLOCK_HEIGHT;
     block.w = BLOCK_WIDTH;
 
@@ -84,6 +88,8 @@ void map_display_map(Screen *screen, Map *map) {
             SDL_RenderFillRect(screen->m_render, &block);
         }
     }
+    map->scoringZone.display(screen, &map->scoringZone, map);
+
 }
 
 
@@ -231,10 +237,13 @@ void map_automove_down(Map *map) {
                 }
             }
         }
+        map->tetrimino = map->tetriminoNext;
+        map->m_nbrValueTetrimino = map->m_nbrValueTetriminoNext;
 
         srand(time(NULL));
-        map->m_nbrValueTetrimino = rand() % 7;
-        map->tetrimino = tetrimino_init(map->m_nbrValueTetrimino);
+        map->m_nbrValueTetriminoNext = rand() % 7;
+        map->tetriminoNext = tetrimino_init(map->m_nbrValueTetriminoNext);
+        
         //check si la piece apparait sur une nouvelle piece
         for (int y = 0; y < map->tetrimino.m_sizeSquare; y++) {
             for (int x = 0; x < map->tetrimino.m_sizeSquare; x++) {
@@ -470,17 +479,17 @@ void map_cleanLine(Map *map) {
 }
 
 void map_increaseSpeed(Map *map) {
-    if (map->m_nbrLineBreak >= 100 && map->m_nbrLineBreak < 200) {
+    if (map->m_nbrLineBreak >= 50 && map->m_nbrLineBreak < 100) {
         map->m_speed = 800;
-    } else if (map->m_nbrLineBreak >= 200 && map->m_nbrLineBreak < 300) {
+    } else if (map->m_nbrLineBreak >= 100 && map->m_nbrLineBreak < 150) {
         map->m_speed = 700;
-    } else if (map->m_nbrLineBreak >= 300 && map->m_nbrLineBreak < 400) {
+    } else if (map->m_nbrLineBreak >= 150 && map->m_nbrLineBreak < 200) {
         map->m_speed = 600;
-    } else if (map->m_nbrLineBreak >= 400 && map->m_nbrLineBreak < 500) {
+    } else if (map->m_nbrLineBreak >= 200 && map->m_nbrLineBreak < 250) {
         map->m_speed = 500;
-    } else if (map->m_nbrLineBreak >= 500 && map->m_nbrLineBreak < 600) {
+    } else if (map->m_nbrLineBreak >= 250 && map->m_nbrLineBreak < 300) {
         map->m_speed = 400;
-    } else if (map->m_nbrLineBreak >= 600) {
+    } else if (map->m_nbrLineBreak >= 300) {
         map->m_speed = 300;
     }
 }
